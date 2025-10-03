@@ -1,6 +1,6 @@
 # Notes-  Mastering Database Fundamentals with MongoDB
 
-Mastering Database Fundamentals with MongoDB
+
 
  1.Introduction to Database and DBMS 
 
