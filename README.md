@@ -1,7 +1,6 @@
 # Notes-  Mastering Database Fundamentals with MongoDB
 
 
-
  1.Introduction to Database and DBMS 
 
  A Database is a structured collection of data that allows efficient storage, access, and management.
