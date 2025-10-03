@@ -2441,44 +2441,29 @@ My further study: 1) sudo means "superuser do" --> it means only access like adm
 #-Discriminators in Mongoose.
 
 A discriminator is a special type of Mongoose model that lets you create multiple models with different schemas but stored in the same MongoDB collection.
-
 It’s useful when you have a base schema with shared fields, and child models with extra fields.
-
 Think of it as inheritance in OOP for MongoDB documents.
-
-
 Why Use Discriminators?
 To avoid creating separate collections for similar types of documents.
 
-To share common fields while allowing unique fields per model.
-
+#-To share common fields while allowing unique fields per model.
 Useful in cases like:
-
 Users with roles (Student, Teacher, Admin)
-
 Payment methods (CreditCard, PayPal, UPI)
-
 Products with categories (Book, Electronics, Clothing)
-
 How Discriminators Work
 You define a base schema (common fields).
-
 You create discriminator models that extend the base schema with additional fields.
-
 MongoDB stores everything in the same collection, and adds an internal field __t to distinguish the type.
-
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-
 // 1. Base Schema
 const UserSchema = new Schema({
   name: String,
   email: String,
 }, { discriminatorKey: "__t", collection: "users" });
-
 // Base model
-
-Example: User with Roles
+#-Example: User with Roles
 const User = mongoose.model("User", UserSchema);
 
 // 2. Discriminator for Student
@@ -2488,7 +2473,6 @@ const Student = User.discriminator("Student",
     year: Number,
   })
 );
-
 // 3. Discriminator for Teacher
 const Teacher = User.discriminator("Teacher",
   new Schema({
@@ -2496,14 +2480,11 @@ const Teacher = User.discriminator("Teacher",
     experience: Number,
   })
 );
-
 // 4. Insert Example
 (async () => {
   await mongoose.connect("mongodb://127.0.0.1:27017/testdb");
-
   const s = await Student.create({ name: "Yash", email: "yash@test.com", course: "BCA", year: 3 });
   const t = await Teacher.create({ name: "Gupta", email: "gupta@test.com", subject: "Math", experience: 5 });
-
   console.log("Student:", s);
   console.log("Teacher:", t);
 })();
@@ -2525,32 +2506,26 @@ How Data Looks in MongoDB
   "experience": 5,
   "__t": "Teacher"
 }
-
  Querying
 const students = await Student.find();    // Only Student docs
 const teachers = await Teacher.find();    // Only Teacher docs
 const allUsers = await User.find();       // Both students & teachers
 
 
-  Model.discriminator() in Mongoose
-The Model.discriminator(name, schema, [options]) method is used to create a discriminator model based on an existing base model.
+#-Model.discriminator() in Mongoose
 
-
-When you use Mongoose discriminators, all the documents (base + discriminators) are stored in the base model’s collection.
-
- Event + Discriminators
-Base Model
-js
-Copy code
-const mongoose = require("mongoose");
-const { Schema } = mongoose;
+     The Model.discriminator(name, schema, [options]) method is used to create a discriminator model based on an existing base model.
+      When you use Mongoose discriminators, all the documents (base + discriminators) are stored in the base model’s collection.
+       Event + Discriminators
+     Base Model
+       const mongoose = require("mongoose");
+           const { Schema } = mongoose;
 
 // Base schema for Event
 const eventSchema = new Schema({
   title: String,
   date: Date
 }, { discriminatorKey: "__t", collection: "events" });
-
 // Base model
 const Event = mongoose.model("Event", eventSchema);
 Discriminators
@@ -2571,8 +2546,6 @@ const Webinar = Event.discriminator("Webinar",
     host: String
   })
 );
-
-
 Saving Documents
 js
 Copy code
@@ -2582,7 +2555,6 @@ await Conference.create({
   location: "New Delhi",
   speakers: ["Yash", "Gupta"]
 });
-
 await Webinar.create({
   title: "MongoDB Deep Dive",
   date: new Date(),
@@ -2609,7 +2581,6 @@ Copy code
   "__t": "Webinar"
 }
 👉 Both documents are stored in the same events collection, but the __t discriminator key tells Mongoose what subtype it is (Conference or Webinar).
-
 📌 Querying
 js
 Copy code
@@ -2619,30 +2590,21 @@ const webinars = await Webinar.find();
 
 
  In short:
-
 Discriminators always save documents into the base model’s collection.
-
 The discriminator type is tracked using the __t field (or your custom discriminator k
-
-
 What is a Discriminator Key?
 A discriminator key is the field that Mongoose uses to differentiate between documents of different discriminator models stored in the same base collection.
 
 By default, this field is named __t.
-
 The value of the discriminator key is the name you gave to the discriminator model (e.g., "Student", "Teacher", "Webinar").
-
-
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
-
 const options = { discriminatorKey: "kind", collection: "events" };
 
 const eventSchema = new Schema({
   title: String,
   date: Date
 }, options);
-
 const Event = mongoose.model("Event", eventSchema);
 Discriminators
 js
@@ -2653,7 +2615,6 @@ const Webinar = Event.discriminator("Webinar",
     host: String
   })
 );
-
 const Conference = Event.discriminator("Conference",
   new Schema({
     location: String,
@@ -2662,13 +2623,10 @@ const Conference = Event.discriminator("Conference",
 );
 📌 Documents in MongoDB
 If you save:
-
 js
-Copy code
 await Webinar.create({ title: "MongoDB 101", date: new Date(), url: "zoom.com/meet", host: "Yash" });
 await Conference.create({ title: "Tech Summit", date: new Date(), location: "Delhi", speakers: ["Alice", "Bob"] });
 Stored documents in events collection look like:
-
 json
 Copy code
 {
@@ -2688,10 +2646,8 @@ Copy code
   "kind": "Conference"
 }
 👉 Notice here the discriminator key is "kind", not the default __t.
-
 📌 Changing the Discriminator Key
 You can override the default like this:
-
 js
 Copy code
 const eventSchema = new Schema({
@@ -2699,7 +2655,6 @@ const eventSchema = new Schema({
   date: Date
 }, { discriminatorKey: "eventType" });
 Now MongoDB will store:
-
 json
 Copy code
 {
@@ -2709,23 +2664,16 @@ Copy code
 }
 📌 Key Points about Discriminator Keys
 Default is __t.
-
 Can be customized via { discriminatorKey: "customField" } in the schema options.
-
 The value stored is the name of the discriminator model.
-
 This field is automatically added by Mongoose when saving discriminator docs.
-
 Useful for queries (e.g., Event.find({ kind: "Webinar" })).
-
 ✅ In short:
 Discriminator keys are the “labels” that tell MongoDB which subtype a document belongs to when you’re using discriminators. They’re essential because all discriminators share the same collection.
 
 
 Use discriminatorKey in schema options to define a custom key name.
-
 To reclassify a document, update the key field directly (eventType).
-
 If you rename the discriminator key, migrate old docs accordingly.
 
 
